@@ -12,6 +12,7 @@ fylname.dat <- '11,319 set Bs, Ec, Pa (table S2).xlsx'  # file name for data inp
 fylpth.dat <- 'C:/Users/new/Zotero/storage/SS9XI6IS' # filepath - it's a zotero folder 
 fylsheets.dat <- c('BS', "EC", 'PA') # sheets to read
 
+general.path <- 'wang promoters/'
 query_for_subset <- 'wang_promoters_query.csv'
 
 # Data import ----
@@ -23,7 +24,7 @@ enter.dat <- map_dfr(fylsheets.dat,
                        mutate(organism = .x)       
 )
    
-enter.query <- read_csv(query_for_subset)
+enter.query <- paste0(general.path, query_for_subset) %>% read_csv
 
 # wrangling ----
 
@@ -43,12 +44,30 @@ slected.dat <- sbset.dat %>%
   left_join(exact.query %>% 
               rename('OLIGO ID' = promoter_name)) %>% 
   group_by(organism) %>% 
-  arrange(`protein (log10)`)
+  arrange(organism, `protein (log10)`) %>% 
+  mutate(across(`Plasmid ID`, fct_inorder))
   # pivot_wider()
   
 # plotting ----
 
-slected.dat %>% 
+# plasmid id vs protein
+plt_prot <- slected.dat %>% 
   ggplot(aes(`protein (log10)`,`Plasmid ID`, colour = organism)) + 
   geom_point() +
-  geom_line(aes(group = organism))
+  geom_line(aes(group = organism), orientation = 'y') + 
+  ggtitle('Translation', subtitle = 'Selected harris wang promoters')
+ggsave(str_c(general.path, 'protein plot.png'))
+
+# plasmid id vs transcription 
+plt_tx <- slected.dat %>% 
+  ggplot(aes(tx_raw,`Plasmid ID`, colour = organism)) + 
+  geom_point() +
+  geom_line(aes(group = organism), orientation = 'y') + 
+  ggtitle('Transcription', subtitle = 'Selected harris wang promoters')
+ggsave(str_c(general.path, 'transcription plot.png'))
+
+# combined plot
+# combplt <- plt_prot + plt_tx
+
+# interactive plots
+# ggplotly(plt_tx, dynamicTicks = T)
