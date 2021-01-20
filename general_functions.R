@@ -3,18 +3,14 @@
 # read in excel file (.xls) of qPCR exported from Quantstudio 3 
   # Make sure to include raw data as well
 
-# calling libraries ; make sure they are installed (install.packages)
-library(readxl); library(magrittr); library(tidyverse); library(ggrepel); library(googlesheets4); library(rlang); library(lubridate); library(plotly) 
+# Libraries ----
 
-sheeturls <- list(templates = 'https://docs.google.com/spreadsheets/d/19oRiRcRVS23W3HqRKjhMutJKC2lFOpNK8aNUkC-No-s/edit#gid=478762118',
-                  biobot_id = 'https://docs.google.com/spreadsheets/d/1ghb_GjTS4yMFbzb65NskAlm-2Gb5M4SNYi4FHE4YVyI/edit#gid=233791008',
-                  sample_registry = 'https://docs.google.com/spreadsheets/d/1mJcCt1wMiOuBic6sRlBZJf8KSNu2y-B5PjzCUu7jPM8/edit#gid=521099478',
-                  
-                  data_dump = 'https://docs.google.com/spreadsheets/d/1ouk-kCJHERRhOMNP07lXfiC3aGB4wtWXpnYf5-b2CI4/edit#gid=0',
-                  raw_ddpcr = 'https://docs.google.com/spreadsheets/d/1jdO_P9SZGezSTLiIARtSmA7qaUuX3wA-jCe7YiQ1sCI/edit#gid=0',
-                  complete_data = 'https://docs.google.com/spreadsheets/d/1ltvW7xZf2aUPoBchD4NFGuV0gGWPkdsOW3a0Hxalm-Y/edit#gid=1363292517',
-                  wwtp_only_data = 'https://docs.google.com/spreadsheets/d/1dBESjgWSFsOBodFFpYNhWIOAQ2a3wvoLkrn12V_rFck/edit#gid=0' 
-)
+# calling libraries ; make sure they are installed (install.packages)
+library(tidyverse); library(lubridate) # general: data handling and for dates
+library(googlesheets4); library(rlang);  # google sheets, rlanguage core - tidy evaluation
+library(magrittr); # pipes for clean code
+library(plotly); library(patchwork); library(ggrepel) # plotting : interactive, composing plots, clean labelling 
+
 
 # reading files and manipulating columns ----
 
@@ -551,3 +547,9 @@ format_logscale_x <- function(plt)
   }
   
   # use as ggplot(df,aes(x,y)) + geom_point() + scale_y_log10(labels = fancy_scientific)
+
+# Others ----
+  
+  # Dummy data for testing
+  a <- tibble(a1 = 1:5, a2 = 5:1, a3 = letters[1:5])
+  
