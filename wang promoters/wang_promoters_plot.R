@@ -18,7 +18,7 @@ query_for_subset <- 'wang_promoters_query.csv'
 # Data import ----
 
 enter.dat <- map_dfr(fylsheets.dat, 
-                     ~ read_xlsx(path = str_c(fylpth.dat, fylname.dat, sep = '/'), 
+                     ~ readxl::read_xlsx(path = str_c(fylpth.dat, fylname.dat, sep = '/'), 
                                  sheet = .x, 
                                  col_types = 'numeric') %>% 
                        mutate(organism = .x)       
@@ -41,22 +41,33 @@ rm(enter.dat) # removing raw data from pipeline - too large, slowing down R
 
 slected.dat <- sbset.dat %>% 
   select(`OLIGO ID`, tx_raw, `protein (log10)`, organism) %>%  # select only relevant columns to plot
-  left_join(exact.query %>% 
-              rename('OLIGO ID' = promoter_name)) %>% 
+  rename(promoter_name = 'OLIGO ID') %>% 
+  left_join(exact.query) %>% 
   group_by(organism) %>% 
   arrange(organism, `protein (log10)`) %>% 
-  mutate(across(`Plasmid ID`, fct_inorder))
+  mutate(across(c('Plasmid ID', 'promoter_name'), ~ as.character(.) %>%  fct_inorder))
   # pivot_wider()
   
 # plotting ----
 
 # plasmid id vs protein
 plt_prot <- slected.dat %>% 
-  ggplot(aes(`protein (log10)`,`Plasmid ID`, colour = organism)) + 
+  {ggplot(.,aes(`protein (log10)`,`Plasmid ID`, colour = organism)) + 
+  geom_point() +
+  geom_line(aes(group = organism), orientation = 'y') + 
+  ggtitle('Translation', subtitle = 'Selected harris wang promoters')} %>% 
+  print()
+
+ggsave(str_c(general.path, 'protein plot.png'), width = 4, height = 4.6 )
+
+
+# HW number vs protein
+plt_prot_HW <- ggplot(slected.dat, aes(`protein (log10)`, promoter_name, colour = organism)) + 
   geom_point() +
   geom_line(aes(group = organism), orientation = 'y') + 
   ggtitle('Translation', subtitle = 'Selected harris wang promoters')
-ggsave(str_c(general.path, 'protein plot.png'))
+ggsave(str_c(general.path, 'protein plot with HW number.png'), plot = plt_prot_HW, width = 4, height = 4.6)
+
 
 # plasmid id vs transcription 
 plt_tx <- slected.dat %>% 
