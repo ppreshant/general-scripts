@@ -48,6 +48,16 @@ slected.dat <- sbset.dat %>%
   mutate(across(c('Plasmid ID', 'promoter_name'), ~ as.character(.) %>%  fct_inorder))
   # pivot_wider()
   
+
+mid.all.dat <- enter.dat %>% 
+  select(`OLIGO ID`, tx_raw, `protein (log10)`, organism) %>%  # select only relevant columns to plot
+  rename(promoter_name = 'OLIGO ID') %>% 
+  left_join(exact.query) %>% 
+  group_by(organism) %>% 
+  arrange(organism, `protein (log10)`) %>% 
+  mutate(across(c('promoter_name'), ~ as.character(.) %>%  fct_inorder))
+  
+
 # plotting ----
 
 # plasmid id vs protein
@@ -82,3 +92,21 @@ ggsave(str_c(general.path, 'transcription plot.png'))
 
 # interactive plots
 # ggplotly(plt_tx, dynamicTicks = T)
+
+# plotting all data
+# HW number vs protein
+all.plt_prot_HW <- ggplot(mid.all.dat, aes(`protein (log10)`, promoter_name, colour = organism)) + 
+  geom_point(alpha = 0.2) +
+  # geom_line(aes(group = organism), orientation = 'y') + 
+  ggtitle('Translation', subtitle = 'Selected harris wang promoters')
+ggsave(str_c(general.path, 'protein plot_all HW.png'), plot = all.plt_prot_HW, width = 4, height = 4.6)
+
+
+# plasmid id vs transcription 
+all.plt_tx <- mid.all.dat %>% 
+  ggplot(aes(tx_raw, promoter_name, colour = organism)) + 
+  geom_point(alpha = 0.2) +
+  # geom_line(aes(group = organism), orientation = 'y') + 
+  ggtitle('Transcription', subtitle = 'Selected harris wang promoters')
+ggsave(str_c(general.path, 'Transcription plot_all HW.png'), plot = all.plt_tx, width = 4, height = 4.6)
+
